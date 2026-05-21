@@ -1,4 +1,4 @@
-# Cow Harness
+# Harness
 
 `cow-harness/` 是任何项目的 Agent Harness 脚手架源头：
 它描述项目规则、工作流路由、过程产物、验证门禁、入口模板、工具适配和脚本。

@@ -49,21 +49,28 @@ MSG
   exit 1
 fi
 
-echo "==> Checking optional local superpowers skills"
-required_paths=(
-  "$HOME/.codex/superpowers/skills/brainstorming/SKILL.md"
-  "$HOME/.codex/superpowers/skills/writing-plans/SKILL.md"
-  "$HOME/.codex/superpowers/skills/systematic-debugging/SKILL.md"
-  "$HOME/.codex/superpowers/skills/test-driven-development/SKILL.md"
-  "$HOME/.codex/superpowers/skills/verification-before-completion/SKILL.md"
-)
+echo "==> Checking superpowers skills"
+
+SUPERPOWERS_SKILLS=(brainstorming writing-plans systematic-debugging test-driven-development verification-before-completion)
+SEARCH_DIRS=("$HOME/.claude/skills" "$HOME/.agents/skills")
+
+find_skill() {
+  local skill="$1"
+  for dir in "${SEARCH_DIRS[@]}"; do
+    if [[ -f "$dir/$skill/SKILL.md" ]]; then
+      echo "$dir/$skill/SKILL.md"
+      return 0
+    fi
+  done
+  return 1
+}
 
 missing=0
-for skill_path in "${required_paths[@]}"; do
-  if [[ -f "$skill_path" ]]; then
-    echo "ok: $skill_path"
+for skill in "${SUPERPOWERS_SKILLS[@]}"; do
+  if path=$(find_skill "$skill"); then
+    echo "ok: $path"
   else
-    echo "missing: $skill_path"
+    echo "missing: $skill"
     missing=1
   fi
 done
@@ -71,9 +78,10 @@ done
 if [[ "$missing" -ne 0 ]]; then
   cat <<'MSG' >&2
 
-Some optional superpowers skills are missing. oh-my-codex passed setup and doctor, and the
-project can still use omx workflows. Install or sync the listed superpowers skills if you
-want exact compatibility with the optional superpowers routes in AGENTS.md.
+Some superpowers skills are missing. Install via:
+  npx skills add obra/superpowers -g
+
+oh-my-codex passed setup and doctor, and the project can still use omx workflows.
 MSG
   if [[ "${STRICT_SUPERPOWERS:-0}" == "1" ]]; then
     exit 2
